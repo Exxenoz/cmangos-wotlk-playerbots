@@ -34,6 +34,13 @@
 #include "Pools/PoolManager.h"
 #include "GameEvents/GameEventMgr.h"
 
+#ifdef ENABLE_PLAYERBOTS
+#include "AhBot.h"
+#include "playerbot.h"
+#include "PlayerbotAIConfig.h"
+#include "GuildTaskMgr.h"
+#endif
+
 // Supported shift-links (client generated and server side)
 // |color|Hachievement:achievement_id:player_guid_hex:completed_0_1:mm:dd:yy_from_2000:criteriaMask1:criteriaMask2:criteriaMask3:criteriaMask4|h[name]|h|r
 //                                                                        - client, item icon shift click, not used in server currently
@@ -972,6 +979,14 @@ ChatCommand* ChatHandler::getCommandTable()
         { "auction",        SEC_ADMINISTRATOR,  false, nullptr,                                           "", auctionCommandTable  },
 #ifdef BUILD_AHBOT
         { "ahbot",          SEC_ADMINISTRATOR,  true,  nullptr,                                           "", ahbotCommandTable    },
+#endif
+#ifdef ENABLE_PLAYERBOTS
+#ifndef BUILD_AHBOT
+        { "ahbot",            SEC_GAMEMASTER,    true,  &ChatHandler::HandleAhBotCommand,                      "", NULL },
+#endif
+        { "rndbot",           SEC_GAMEMASTER,    true,  &ChatHandler::HandleRandomPlayerbotCommand,     "", NULL },
+        { "bot",              SEC_PLAYER,        false, &ChatHandler::HandlePlayerbotCommand,               "", NULL },
+        { "gtask",            SEC_GAMEMASTER,    true,  &ChatHandler::HandleGuildTaskCommand,           "", NULL },
 #endif
         { "cast",           SEC_ADMINISTRATOR,  false, nullptr,                                           "", castCommandTable     },
         { "character",      SEC_GAMEMASTER,     true,  nullptr,                                           "", characterCommandTable},

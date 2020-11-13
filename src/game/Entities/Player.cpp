@@ -76,6 +76,11 @@
 #include "Config/Config.h"
 #endif
 
+#ifdef ENABLE_PLAYERBOTS
+#include "playerbot.h"
+#include "PlayerbotAIConfig.h"
+#endif
+
 #include <cmath>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -503,6 +508,10 @@ Player::Player(WorldSession* session): Unit(), m_taxiTracker(*this), m_mover(thi
     m_playerbotAI = 0;
     m_playerbotMgr = 0;
 #endif
+#ifdef ENABLE_PLAYERBOTS
+    m_playerbotAI = 0;
+    m_playerbotMgr = 0;
+#endif
     m_speakTime = 0;
     m_speakCount = 0;
 
@@ -696,6 +705,11 @@ Player::Player(WorldSession* session): Unit(), m_taxiTracker(*this), m_mover(thi
     m_isDebuggingAreaTriggers = false;
 
     m_fishingSteps = 0;
+    
+#ifdef ENABLE_PLAYERBOTS
+    m_playerbotAI = NULL;
+    m_playerbotMgr = NULL;
+#endif
 }
 
 Player::~Player()
@@ -741,6 +755,21 @@ Player::~Player()
     if (m_playerbotMgr)
     {
         delete m_playerbotMgr;
+        m_playerbotMgr = 0;
+    }
+#endif
+
+#ifdef ENABLE_PLAYERBOTS
+    if (m_playerbotAI) {
+        {
+            delete m_playerbotAI;
+        }
+        m_playerbotAI = 0;
+    }
+    if (m_playerbotMgr) {
+        {
+            delete m_playerbotMgr;
+        }
         m_playerbotMgr = 0;
     }
 #endif
@@ -1708,6 +1737,20 @@ void Player::Update(const uint32 diff)
         m_playerbotMgr->UpdateAI(diff);
 #endif
 }
+
+#ifdef ENABLE_PLAYERBOTS
+void Player::UpdateAI(const uint32 diff, bool minimal)
+{
+    if (m_playerbotAI)
+    {
+        m_playerbotAI->UpdateAI(diff, minimal);
+    }
+    if (m_playerbotMgr)
+    {
+        m_playerbotMgr->UpdateAI(diff);
+    }
+}
+#endif
 
 void Player::Heartbeat()
 {
@@ -14331,7 +14374,12 @@ void Player::AddQuest(Quest const* pQuest, Object* questGiver)
         questStatusData.uState = QUEST_CHANGED;
 
     // quest accept scripts
+#ifdef ENABLE_PLAYERBOTS
+    // quest accept scripts
+    if (questGiver && this != questGiver)
+#else
     if (questGiver)
+#endif
     {
         switch (questGiver->GetTypeId())
         {
@@ -14579,15 +14627,19 @@ void Player::RewardQuest(Quest const* pQuest, uint32 reward, Object* questGiver,
     {
         switch (questGiver->GetTypeId())
         {
-            case TYPEID_UNIT:
-                handled = sScriptDevAIMgr.OnQuestRewarded(this, (Creature*)questGiver, pQuest);
-                break;
-            case TYPEID_GAMEOBJECT:
-                handled = sScriptDevAIMgr.OnQuestRewarded(this, (GameObject*)questGiver, pQuest);
-                break;
+        case TYPEID_UNIT:
+            handled = sScriptDevAIMgr.OnQuestRewarded(this, (Creature*)questGiver, pQuest);
+            break;
+        case TYPEID_GAMEOBJECT:
+            handled = sScriptDevAIMgr.OnQuestRewarded(this, (GameObject*)questGiver, pQuest);
+            break;
         }
 
+#ifdef ENABLE_PLAYERBOTS
+        if (this != questGiver && !handled && pQuest->GetQuestCompleteScript() != 0)
+#else
         if (!handled && pQuest->GetQuestCompleteScript() != 0)
+#endif
             GetMap()->ScriptsStart(sQuestEndScripts, pQuest->GetQuestCompleteScript(), questGiver, this, Map::SCRIPT_EXEC_PARAM_UNIQUE_BY_SOURCE);
     }
 
@@ -18561,11 +18613,18 @@ void Player::_SaveInventory()
         m_items[i]->FSetState(ITEM_NEW);
     }
 
+#ifdef ENABLE_PLAYERBOTS
+    if (!GetPlayerbotAI())  // hackfix for crash during save
+    {
+#endif
     // update enchantment durations
     for (EnchantDurationList::const_iterator itr = m_enchantDuration.begin(); itr != m_enchantDuration.end(); ++itr)
     {
         itr->item->SetEnchantmentDuration(itr->slot, itr->leftduration);
     }
+#ifdef ENABLE_PLAYERBOTS
+    }
+#endif
 
     // if no changes
     if (m_itemUpdateQueue.empty()) return;
