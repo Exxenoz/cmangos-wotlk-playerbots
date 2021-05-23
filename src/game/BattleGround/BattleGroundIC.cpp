@@ -553,6 +553,9 @@ void BattleGroundIC::HandleCreatureCreate(Creature* creature)
 
 void BattleGroundIC::HandleGameObjectCreate(GameObject* go)
 {
+    // add all objects in GO store
+    m_goEntryGuidStore[go->GetEntry()] = go->GetObjectGuid();
+
     switch (go->GetEntry())
     {
         case BG_IC_GO_SEAFORIUM_BOMBS_A:
