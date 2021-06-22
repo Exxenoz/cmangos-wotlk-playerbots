@@ -408,40 +408,32 @@ namespace MMAP
 
     bool MMapManager::unloadMap(uint32 mapId)
     {
-        bool success = false;
-        // unload all maps with given mapId
-        for (auto itr = m_loadedMMaps.begin(); itr != m_loadedMMaps.end(); ++itr)
+        if (m_loadedMMaps.find(mapId) == m_loadedMMaps.end())
         {
-            if (itr->first != uint64(mapId) << 32)
-                continue;
-
-            // unload all tiles from given map
-            MMapData* mmap = (*itr).second;
-            for (MMapTileSet::iterator i = mmap->mmapLoadedTiles.begin(); i != mmap->mmapLoadedTiles.end(); ++i)
-            {
-                uint32 x = (i->first >> 16);
-                uint32 y = (i->first & 0x0000FFFF);
-                dtStatus dtResult = mmap->navMesh->removeTile(i->second, nullptr, nullptr);
-                if (dtStatusFailed(dtResult))
-                    sLog.outError("MMAP:unloadMap: Could not unload %03u%02i%02i.mmtile from navmesh", mapId, x, y);
-                else
-                {
-                    --m_loadedTiles;
-                    DEBUG_FILTER_LOG(LOG_FILTER_MAP_LOADING, "MMAP:unloadMap: Unloaded mmtile %03i[%02i,%02i] from %03i", mapId, x, y, mapId);
-                }
-            }
-
-            delete mmap;
-            m_loadedMMaps.erase(itr);
-            DEBUG_FILTER_LOG(LOG_FILTER_MAP_LOADING, "MMAP:unloadMap: Unloaded %03i.mmap", mapId);
-            success = true;
-        }
-
-        if (!success)
             // file may not exist, therefore not loaded
             DEBUG_FILTER_LOG(LOG_FILTER_MAP_LOADING, "MMAP:unloadMap: Asked to unload not loaded navmesh map %03u", mapId);
+            return false;
+        }
 
-        return success;
+        // unload all tiles from given map
+        MMapData* mmap = m_loadedMMaps[mapId];
+        for (MMapTileSet::iterator i = mmap->mmapLoadedTiles.begin(); i != mmap->mmapLoadedTiles.end(); ++i)
+        {
+            uint32 x = (i->first >> 16);
+            uint32 y = (i->first & 0x0000FFFF);
+            dtStatus dtResult = mmap->navMesh->removeTile(i->second, nullptr, nullptr);
+            if (dtStatusFailed(dtResult))
+                sLog.outError("MMAP:unloadMap: Could not unload %03u%02i%02i.mmtile from navmesh", mapId, x, y);
+            else
+            {
+                --m_loadedTiles;
+                DEBUG_FILTER_LOG(LOG_FILTER_MAP_LOADING, "MMAP:unloadMap: Unloaded mmtile %03i[%02i,%02i] from %03i", mapId, x, y, mapId);
+            }
+        }
+
+        delete mmap;
+        m_loadedMMaps.erase(mapId);
+        DEBUG_FILTER_LOG(LOG_FILTER_MAP_LOADING, "MMAP:unloadMap: Unloaded %03i.mmap", mapId);
     }
 
     bool MMapManager::unloadMapInstance(uint32 mapId, uint32 instanceId)
