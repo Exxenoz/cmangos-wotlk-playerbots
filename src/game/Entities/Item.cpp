@@ -970,7 +970,7 @@ void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint
         return;
 
     Player* owner = GetOwner();
-    if (slot < MAX_INSPECTED_ENCHANTMENT_SLOT)
+    if (slot < MAX_INSPECTED_ENCHANTMENT_SLOT && owner && owner->IsInWorld())
     {
         if (uint32 oldEnchant = GetEnchantmentId(slot))
             owner->SendEnchantmentLog(ObjectGuid(), GetEntry(), oldEnchant);
@@ -1113,7 +1113,8 @@ void Item::SendUpdateSockets()
     for (uint32 i = SOCK_ENCHANTMENT_SLOT; i <= BONUS_ENCHANTMENT_SLOT; ++i)
         data << uint32(GetEnchantmentId(EnchantmentSlot(i)));
 
-    GetOwner()->SendDirectMessage(data);
+    if (GetOwner() && GetOwner()->IsInWorld())
+        GetOwner()->SendDirectMessage(data);
 }
 
 // Though the client has the information in the item's data field,

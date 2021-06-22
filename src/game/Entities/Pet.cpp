@@ -245,7 +245,7 @@ bool Pet::LoadPetFromDB(Player* owner, Position const& spawnPos, uint32 petentry
     }
 
     // DK Permanent ghoul spell
-    if (spellInfo->HasAttribute(SPELL_ATTR_EX7_RECAST_ON_RESUMMON) && current && !forced) // must cast through spell in order to trigger correct ghoul CD
+    if (spellInfo && spellInfo->HasAttribute(SPELL_ATTR_EX7_RECAST_ON_RESUMMON) && current && !forced) // must cast through spell in order to trigger correct ghoul CD
     {
         Position pos = Pet::GetPetSpawnPosition(owner);
         owner->CastSpell(pos.x, pos.y, pos.z, summon_spell_id, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_COOLDOWNS);
@@ -879,7 +879,7 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= nullptr*/)
     }
 
     if (isControlled())
-        if (owner->IsPlayer())
+        if (owner && owner->IsPlayer())
             static_cast<Player*>(owner)->RemoveControllable(this);
 
     AddObjectToRemoveList();
@@ -2287,6 +2287,9 @@ void Pet::CastPetAuras(bool current)
         return;
 
     Unit* owner = GetOwner();
+
+    if (!owner)
+        return;
 
     for (PetAuraSet::const_iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end();)
     {

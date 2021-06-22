@@ -6464,6 +6464,7 @@ void Unit::RemoveNotOwnTrackedTargetAuras(uint32 newPhase)
 
 void Unit::RemoveSpellAuraHolder(SpellAuraHolder* holder, AuraRemoveMode mode)
 {
+    MANGOS_ASSERT(holder);
     MANGOS_ASSERT(!holder->IsDeleted());
 
     // Statue unsummoned at holder remove
@@ -6548,7 +6549,8 @@ void Unit::RemoveAura(Aura* Aur, AuraRemoveMode mode)
     // remove from list before mods removing (prevent cyclic calls, mods added before including to aura list - use reverse order)
     if (Aur->GetModifier()->m_auraname < TOTAL_AURAS)
     {
-        m_modAuras[Aur->GetModifier()->m_auraname].remove(Aur);
+        if (std::find(m_modAuras[Aur->GetModifier()->m_auraname].begin(), m_modAuras[Aur->GetModifier()->m_auraname].end(), Aur) != m_modAuras[Aur->GetModifier()->m_auraname].end())
+            m_modAuras[Aur->GetModifier()->m_auraname].remove(Aur);
     }
 
     // Set remove mode
@@ -8730,7 +8732,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellSchoolMask schoolMask, Spe
     AuraList const& mOwnerTaken = GetAurasByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
     for (auto i : mOwnerTaken)
     {
-        if (i->GetCasterGuid() == caster->GetObjectGuid() && i->isAffectedOnSpell(spellProto))
+        if (caster && i->GetCasterGuid() == caster->GetObjectGuid() && i->isAffectedOnSpell(spellProto))
             TakenTotalMod *= (i->GetModifier()->m_amount + 100.0f) / 100.0f;
     }
 
@@ -13932,7 +13934,9 @@ void Unit::Uncharm(Unit* charmed, uint32 spellId)
             charmed->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
             charmed->InterruptSpell(CURRENT_MELEE_SPELL);
 
-            charmInfo->ResetCharmState();
+            if (charmInfo)
+                charmInfo->ResetCharmState();
+
             charmed->DeleteCharmInfo();
 
             charmed->RemoveUnattackableTargets();
@@ -13946,7 +13950,8 @@ void Unit::Uncharm(Unit* charmed, uint32 spellId)
             if (Unit* owner = charmedCreature->GetOwner())
                 charmed->setFaction(owner->GetFaction());
 
-            charmInfo->ResetCharmState();
+            if (charmInfo)
+                charmInfo->ResetCharmState();
 
             // as possessed is a pet we have to restore original charminfo so Pet::DeleteCharmInfo will take care of that
             charmed->DeleteCharmInfo();
@@ -13965,7 +13970,9 @@ void Unit::Uncharm(Unit* charmed, uint32 spellId)
         else
             charmedPlayer->setFactionForRace(charmedPlayer->getRace());
 
-        charmInfo->ResetCharmState();
+        if (charmInfo)
+            charmInfo->ResetCharmState();
+
         charmedPlayer->DeleteCharmInfo();
 
         charmed->GetMotionMaster()->Clear(false, true);
