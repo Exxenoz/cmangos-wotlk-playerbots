@@ -1104,7 +1104,7 @@ void Map::Remove(T* obj, bool remove)
     UpdateObjectVisibility(obj, cell, p);                   // i think will be better to call this function while object still in grid, this changes nothing but logically is better(as for me)
     RemoveFromGrid(obj, grid, cell);
 
-    m_objRemoveList.insert(obj->GetObjectGuid());
+    //m_objRemoveList.insert(obj->GetObjectGuid());
 
     obj->ResetMap();
     if (remove)
@@ -1136,20 +1136,26 @@ void Map::PlayerRelocation(Player* player, float x, float y, float z, float orie
         DEBUG_FILTER_LOG(LOG_FILTER_PLAYER_MOVES, "Player %s relocation grid[%u,%u]cell[%u,%u]->grid[%u,%u]cell[%u,%u]", player->GetName(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
 
         NGridType* oldGrid = getNGrid(old_cell.GridX(), old_cell.GridY());
-        RemoveFromGrid(player, oldGrid, old_cell);
-        if (!old_cell.DiffGrid(new_cell))
-            AddToGrid(player, oldGrid, new_cell);
-        else
-            EnsureGridLoadedAtEnter(new_cell, player);
+        if (oldGrid)
+        {
+            RemoveFromGrid(player, oldGrid, old_cell);
+            if (!old_cell.DiffGrid(new_cell))
+                AddToGrid(player, oldGrid, new_cell);
+            else
+                EnsureGridLoadedAtEnter(new_cell, player);
+        }
 
         NGridType* newGrid = getNGrid(new_cell.GridX(), new_cell.GridY());
-        player->GetViewPoint().Event_GridChanged(&(*newGrid)(new_cell.CellX(), new_cell.CellY()));
+        if (newGrid)
+        {
+            player->GetViewPoint().Event_GridChanged(&(*newGrid)(new_cell.CellX(), new_cell.CellY()));
+        }
     }
 
     player->OnRelocated();
 
     NGridType* newGrid = getNGrid(new_cell.GridX(), new_cell.GridY());
-    if (!same_cell && newGrid->GetGridState() != GRID_STATE_ACTIVE)
+    if (newGrid && !same_cell && newGrid->GetGridState() != GRID_STATE_ACTIVE)
     {
         ResetGridExpiry(*newGrid, 0.1f);
         newGrid->SetGridState(GRID_STATE_ACTIVE);
@@ -1534,7 +1540,7 @@ void Map::AddObjectToRemoveList(WorldObject* obj)
     MANGOS_ASSERT(obj->GetMapId() == GetId() && obj->GetInstanceId() == GetInstanceId());
 
     obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
-
+    //std::unique_lock<std::mutex> lock(i_objectsToRemove_lock);
     i_objectsToRemove.insert(obj);
     // DEBUG_LOG("Object (GUID: %u TypeId: %u ) added to removing list.",obj->GetGUIDLow(),obj->GetTypeId());
 }
@@ -1544,6 +1550,7 @@ void Map::RemoveAllObjectsInRemoveList()
     if (i_objectsToRemove.empty())
         return;
 
+    std::unique_lock<std::mutex> lock(i_objectsToRemove_lock);
     // DEBUG_LOG("Object remover 1 check.");
     while (!i_objectsToRemove.empty())
     {
@@ -2128,6 +2135,7 @@ BattleGroundMap::BattleGroundMap(uint32 id, time_t expiry, uint32 InstanceId, ui
 
 BattleGroundMap::~BattleGroundMap()
 {
+    UnloadAll(true);
 }
 
 void BattleGroundMap::Initialize(bool)
@@ -2137,6 +2145,9 @@ void BattleGroundMap::Initialize(bool)
 
 void BattleGroundMap::Update(const uint32& diff)
 {
+    if (!GetBG())
+        return;
+
     Map::Update(diff);
 
     if (!m_bg->GetPlayersSize())
@@ -2467,6 +2478,7 @@ void Map::SendObjectUpdates()
     while (!i_objectsToClientUpdate.empty())
     {
         Object* obj = *i_objectsToClientUpdate.begin();
+
         i_objectsToClientUpdate.erase(i_objectsToClientUpdate.begin());
         obj->BuildUpdateData(update_players);
     }

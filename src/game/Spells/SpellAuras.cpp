@@ -1104,7 +1104,8 @@ void Aura::PickTargetsForSpellTrigger(Unit*& triggerCaster, Unit*& triggerTarget
             break;
         case TARGET_UNIT_CHANNEL_TARGET: // Electrified net
             triggerCaster = GetCaster();
-            triggerTarget = dynamic_cast<Unit*>(triggerCaster->GetChannelObject());
+            if (triggerCaster)
+                triggerTarget = dynamic_cast<Unit*>(triggerCaster->GetChannelObject());
             break;
         case TARGET_LOCATION_CHANNEL_TARGET_DEST:
             triggerCaster = GetCaster();

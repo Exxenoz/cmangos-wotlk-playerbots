@@ -50,7 +50,7 @@ class TargetedMovementGeneratorMedium
             i_path(nullptr), i_faceTarget(true)
         {
         }
-        ~TargetedMovementGeneratorMedium() { delete i_path; }
+        ~TargetedMovementGeneratorMedium() { /*delete i_path;*/ }
 
     public:
         bool Update(T&, const uint32&);

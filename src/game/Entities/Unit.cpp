@@ -6070,6 +6070,7 @@ void Unit::RemoveNotOwnTrackedTargetAuras(uint32 newPhase)
 
 void Unit::RemoveSpellAuraHolder(SpellAuraHolder* holder, AuraRemoveMode mode)
 {
+    MANGOS_ASSERT(holder);
     MANGOS_ASSERT(!holder->IsDeleted());
 
     // Statue unsummoned at holder remove
@@ -6154,7 +6155,8 @@ void Unit::RemoveAura(Aura* Aur, AuraRemoveMode mode)
     // remove from list before mods removing (prevent cyclic calls, mods added before including to aura list - use reverse order)
     if (Aur->GetModifier()->m_auraname < TOTAL_AURAS)
     {
-        m_modAuras[Aur->GetModifier()->m_auraname].remove(Aur);
+        if (std::find(m_modAuras[Aur->GetModifier()->m_auraname].begin(), m_modAuras[Aur->GetModifier()->m_auraname].end(), Aur) != m_modAuras[Aur->GetModifier()->m_auraname].end())
+            m_modAuras[Aur->GetModifier()->m_auraname].remove(Aur);
     }
 
     // Set remove mode
@@ -8070,7 +8072,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellSchoolMask schoolMask, Spe
     AuraList const& mOwnerTaken = GetAurasByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
     for (auto i : mOwnerTaken)
     {
-        if (i->GetCasterGuid() == caster->GetObjectGuid() && i->isAffectedOnSpell(spellInfo))
+        if (caster && i->GetCasterGuid() == caster->GetObjectGuid() && i->isAffectedOnSpell(spellProto))
             TakenTotalMod *= (i->GetModifier()->m_amount + 100.0f) / 100.0f;
     }
 
