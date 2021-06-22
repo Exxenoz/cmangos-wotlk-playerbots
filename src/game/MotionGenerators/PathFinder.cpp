@@ -72,8 +72,8 @@ PathFinder::PathFinder(const Unit* owner, bool ignoreNormalization) :
 
 PathFinder::~PathFinder()
 {
-    if (m_sourceUnit)
-        DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "++ PathFinder::~PathInfo() for %u \n", m_sourceUnit->GetGUIDLow());
+    //if (m_sourceUnit)
+    //    DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "++ PathFinder::~PathInfo() for %u \n", m_sourceUnit->GetGUIDLow());
 }
 
 void PathFinder::SetCurrentNavMesh()

@@ -535,6 +535,7 @@ class Map : public GridRefManager<NGridType>
 
         std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP* TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
 
+        mutable std::mutex i_objectsToRemove_lock;
         WorldObjectSet i_objectsToRemove;
 
         typedef std::multimap<TimePoint, ScriptAction> ScriptScheduleMap;
