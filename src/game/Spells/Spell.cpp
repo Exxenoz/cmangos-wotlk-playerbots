@@ -364,7 +364,7 @@ void SpellLog::Initialize()
 {
     m_spellLogData.Initialize(SMSG_SPELLLOGEXECUTE);
     //m_spellLogData << m_spell->GetCaster()->GetPackGUID();
-    m_spellLogData.appendPackGUID(m_spell->GetTrueCaster()->GetObjectGuid().GetRawValue());
+    m_spellLogData.appendPackGUID(m_spell->GetTrueCaster() ? m_spell->GetTrueCaster()->GetObjectGuid().GetRawValue() :ObjectGuid().GetRawValue());
     m_spellLogData << uint32(m_spell->m_spellInfo->Id);
     m_spellLogDataEffectsCounterPos = m_spellLogData.wpos();
     m_spellLogData << uint32(0);                            //placeholder
@@ -404,12 +404,20 @@ void SpellLog::SendToSet()
     if (!m_spellLogDataEffectsCounter)
         return;
 
+    if (!m_spell->GetTrueCaster() || !m_spell->GetCaster())
+    {
+        return;
+    }
+
     // check if one of previous target is not finalized
     FinalizePrevious();
 
     // put total effect counter in packet
     m_spellLogData.put<uint32>(m_spellLogDataEffectsCounterPos, m_spellLogDataEffectsCounter);
-    m_spell->GetTrueCaster()->SendMessageToSet(m_spellLogData, true);
+    if (m_spell->GetTrueCaster())
+        m_spell->GetTrueCaster()->SendMessageToAllWhoSeeMe(m_spellLogData, true);
+    //else if (m_spell->GetCaster())
+    //    m_spell->GetCaster()->SendMessageToAllWhoSeeMe(m_spellLogData, true);
 
     // make it ready for another log if need
     Initialize();
@@ -492,7 +500,7 @@ Spell::Spell(WorldObject * caster, SpellEntry const* info, uint32 triggeredFlags
     m_powerCost = 0;                                        // setup to correct value in Spell::prepare, don't must be used before.
     m_casttime = 0;                                         // setup to correct value in Spell::prepare, don't must be used before.
     m_timer = 0;                                            // will set to cast time in prepare
-    m_creationTime = m_trueCaster->GetMap()->GetCurrentMSTime();
+    m_creationTime = m_trueCaster ? m_trueCaster->GetMap()->GetCurrentMSTime() : sWorld.GetCurrentMSTime();
     m_updated = false;
     m_duration = 0;
     m_maxRange = 0.f;
@@ -3259,6 +3267,9 @@ SpellCastResult Spell::SpellStart(SpellCastTargets const* targets, Aura* trigger
 {
     if (!m_trueCaster)
         m_trueCaster = m_caster;
+    if (!m_trueCaster)
+        return SPELL_NOT_FOUND;
+
     m_spellState = SPELL_STATE_TARGETING;
     m_targets = *targets;
 
@@ -3267,7 +3278,8 @@ SpellCastResult Spell::SpellStart(SpellCastTargets const* targets, Aura* trigger
 
     // create and add update event for this spell
     m_spellEvent = new SpellEvent(this);
-    m_trueCaster->m_events.AddEvent(m_spellEvent, m_trueCaster->m_events.CalculateTime(1));
+    if (m_trueCaster)
+        m_trueCaster->m_events.AddEvent(m_spellEvent, m_trueCaster->m_events.CalculateTime(1));
 
     if (!m_trueCaster->IsGameObject()) // gameobjects dont have a sense of already casting a spell
     {
@@ -8174,7 +8186,7 @@ void Spell::DelayedChannel()
 
 void Spell::UpdateOriginalCasterPointer()
 {
-    if (m_originalCasterGUID == m_trueCaster->GetObjectGuid() && m_trueCaster->IsUnit())
+    if (m_trueCaster && m_originalCasterGUID == m_trueCaster->GetObjectGuid() && m_trueCaster->IsUnit())
         m_originalCaster = static_cast<Unit*>(m_trueCaster);
     else if (m_originalCasterGUID.IsGameObject())
     {

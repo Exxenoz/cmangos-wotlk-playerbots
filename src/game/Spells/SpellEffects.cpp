@@ -12561,11 +12561,14 @@ void Spell::EffectSpiritHeal(SpellEffectIndex /*eff_idx*/)
 
         if (player->getClass() == CLASS_HUNTER)
         {
-            Pet* pet = new Pet;
-            if (!pet->LoadPetFromDB(player, pet->GetPetSpawnPosition(player), 0, 0, false, 100, true))
+            if (!player->GetPet())
             {
-                delete pet;
-                return;
+                Pet* pet = new Pet;
+                if (!pet->LoadPetFromDB(player, pet->GetPetSpawnPosition(player), 0, 0, false, 100, true))
+                {
+                    delete pet;
+                    return;
+                }
             }
         }
         // resurrects last active minion - Imp, Voidwalker, Succubus, Felhunter, or Felguard

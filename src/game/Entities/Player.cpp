@@ -22960,34 +22960,53 @@ void Player::RestoreBaseRune(uint8 index)
     std::vector<Aura const*> removeList;
     std::unordered_set<Aura const*>& auras = m_runes->runes[index].ConvertAuras;
 
-    auto criteria = [&removeList](Aura const* storedAura) -> bool
+    //auto criteria = [&removeList](Aura const* storedAura) -> bool
+    //{
+    //    // AuraEffect already gone
+    //    if (!storedAura)
+    //        return true;
+
+    //    if (storedAura->GetSpellProto()->HasAttribute(SPELL_ATTR_PASSIVE))
+    //    {
+    //        // Don't drop passive talents providing rune conversion
+    //        if (storedAura->GetModifier()->m_auraname == SPELL_AURA_CONVERT_RUNE)
+    //            removeList.push_back(storedAura);
+    //        return true;
+    //    }
+
+    //    // If rune was converted by a non-passive aura that is still active we should keep it converted
+    //    return false;
+    //};
+
+    //for (auto itr = auras.begin(); itr != auras.end();)
+    //{
+    //    if (criteria(*itr))
+    //        auras.erase(itr++);
+    //    else
+    //        ++itr;
+    //}
+
+    for (auto aura : auras)
     {
         // AuraEffect already gone
-        if (!storedAura)
-            return true;
+        if (!aura)
+            continue;
 
-        if (storedAura->GetSpellProto()->HasAttribute(SPELL_ATTR_PASSIVE))
+        if (aura->GetSpellProto()->HasAttribute(SPELL_ATTR_PASSIVE))
         {
             // Don't drop passive talents providing rune conversion
-            if (storedAura->GetModifier()->m_auraname == SPELL_AURA_CONVERT_RUNE)
-                removeList.push_back(storedAura);
-            return true;
+            if (aura->GetModifier()->m_auraname == SPELL_AURA_CONVERT_RUNE)
+                removeList.push_back(aura);
+
+            aura = nullptr;
         }
-
-        // If rune was converted by a non-passive aura that is still active we should keep it converted
-        return false;
-    };
-
-    for (auto itr = auras.begin(); itr != auras.end();)
-    {
-        if (criteria(*itr))
-            itr = auras.erase(itr);
-        else
-            ++itr;
     }
 
-    if (!auras.empty())
-        return;
+    for (auto aura : auras)
+    {
+        if (aura != nullptr)
+            return;
+    }
 
     ConvertRune(index, GetBaseRune(index));
 
