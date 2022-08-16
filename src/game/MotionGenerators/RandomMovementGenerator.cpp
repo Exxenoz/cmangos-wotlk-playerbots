@@ -116,17 +116,25 @@ bool AbstractRandomMovementGenerator::Update(Unit& owner, const uint32& diff)
     return true;
 }
 
+bool AbstractRandomMovementGenerator::_getLocation(Unit& owner, float& x, float& y, float& z)
+{
+    return owner.GetMap()->GetReachableRandomPosition(&owner, x, y, z, i_radius);
+}
+
 int32 AbstractRandomMovementGenerator::_setLocation(Unit& owner)
 {
     // Look for a random location within certain radius of initial position
     float x = i_x, y = i_y, z = i_z;
 
+    if (!_getLocation(owner, x, y, z))
+        return 0;
+
     if (i_pathLength != 0.0f)
         m_pathFinder->setPathLengthLimit(i_pathLength);
 
-    m_pathFinder->ComputePathToRandomPoint(Vector3(x, y, z), i_radius);
+    m_pathFinder->calculate(x, y, z);
 
-    if ((m_pathFinder->getPathType() & PATHFIND_NOPATH) != 0)
+    if (m_pathFinder->getPathType() & PATHFIND_NOPATH)
         return 0;
 
     Movement::MoveSplineInit init(owner);
@@ -215,7 +223,7 @@ FleeingMovementGenerator::FleeingMovementGenerator(Unit const& source) :
 #define MIN_QUIET_DISTANCE 28.0f
 #define MAX_QUIET_DISTANCE 43.0f
 
-int32 FleeingMovementGenerator::_setLocation(Unit& owner)
+bool FleeingMovementGenerator::_getLocation(Unit& owner, float& x, float& y, float& z)
 {
     float dist_from_source = owner.GetDistance(i_x, i_y, i_z);
 
@@ -226,7 +234,14 @@ int32 FleeingMovementGenerator::_setLocation(Unit& owner)
     else    // we are inside quiet range
         i_radius = frand(0.6f, 1.2f) * (MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
 
-    return AbstractRandomMovementGenerator::_setLocation(owner);
+    owner.GetPosition(x, y, z);
+
+    float angle = 2.0f * M_PI_F * rand_norm_f();
+    Position pos = owner.GetFirstRandomAngleCollisionPosition(i_radius, angle);
+    x = pos.x;
+    y = pos.y;
+    z = pos.z + 1;
+    return true;
 }
 
 void PanicMovementGenerator::Initialize(Unit& owner)
