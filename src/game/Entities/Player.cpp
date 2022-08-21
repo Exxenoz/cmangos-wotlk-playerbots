@@ -69,6 +69,7 @@
 #include "World/WorldStateDefines.h"
 #include "World/WorldState.h"
 #include "Anticheat/Anticheat.hpp"
+#include "AI/ScriptDevAI/scripts/custom/Transmogrification.h"
 
 #ifdef BUILD_PLAYERBOT
 #include "PlayerBot/Base/PlayerbotAI.h"
@@ -11706,6 +11707,9 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
         SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry());
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
+
+        if (uint32 entry = sTransmogrification->GetFakeEntry(pItem->GetObjectGuid()))
+            SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), entry);
     }
     else
     {
@@ -11848,6 +11852,7 @@ void Player::MoveItemFromInventory(uint8 bag, uint8 slot, bool update)
             it->RemoveFromWorld();
             it->DestroyForPlayer(this);
         }
+        sTransmogrification->DeleteFakeFromDB(it->GetObjectGuid());
     }
 }
 
