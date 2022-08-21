@@ -199,6 +199,9 @@ enum AccountFlags
     ACCOUNT_FLAG_SILENCED       = 0x02,
     ACCOUNT_FLAG_SHOW_ANTISPAM  = 0x04,
     ACCOUNT_FLAG_HIDDEN         = 0x08,
+    ACCOUNT_FLAG_COLLECTOR_CLASSIC = 0x10,
+    ACCOUNT_FLAG_COLLECTOR_TBC = 0x20,
+    ACCOUNT_FLAG_COLLECTOR_WRATH = 0x40,
 };
 
 // class to deal with packet processing
