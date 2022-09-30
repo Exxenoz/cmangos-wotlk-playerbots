@@ -133,6 +133,10 @@ void PlayerbotHolder::HandlePlayerBotLoginCallback(QueryResult * dummy, SqlQuery
 
     botSession->SetNoAnticheat();
 
+    // has bot already been added?
+    if (sObjectMgr.GetPlayer(lqh->GetGuid()))
+        return;
+
     uint32 guid = lqh->GetGuid().GetRawValue();
     botSession->HandlePlayerLogin(lqh); // will delete lqh
 
