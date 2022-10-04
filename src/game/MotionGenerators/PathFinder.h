@@ -101,7 +101,7 @@ class PathFinder
         unsigned short getFlags(uint32 mapId, float x, float y, float z);
 
         void setAreaCost(uint32 area = 1, float cost = 0.0f);
-
+        const Unit* const getSourceUnit() { return m_sourceUnit; }
     private:
 
         PointsArray    m_pathPoints;       // our actual (x,y,z) path to the target
