@@ -2618,6 +2618,9 @@ struct WorldObjectChangeAccumulator
         // send self fields changes in another way, otherwise
         // with new camera system when player's camera too far from player, camera wouldn't receive packets and changes from player
         if (i_object.isType(TYPEMASK_PLAYER))
+#ifdef ENABLE_PLAYERBOTS
+            if(((Player*)&i_object)->isRealPlayer())
+#endif
             i_object.BuildUpdateDataForPlayer((Player*)&i_object, i_updateDatas);
     }
 
