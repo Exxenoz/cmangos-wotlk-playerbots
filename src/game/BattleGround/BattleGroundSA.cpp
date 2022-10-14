@@ -404,6 +404,8 @@ void BattleGroundSA::HandleCreatureCreate(Creature* creature)
 
 void BattleGroundSA::HandleGameObjectCreate(GameObject* go)
 {
+    m_goEntryGuidStore[go->GetEntry()] = go->GetObjectGuid();
+
     switch (go->GetEntry())
     {
         case BG_SA_GO_TRANSPORT_SHIP_HORDE_1:
@@ -427,19 +429,6 @@ void BattleGroundSA::HandleGameObjectCreate(GameObject* go)
             break;
         case BG_SA_GO_TITAN_RELIC_HORDE:
             m_relicGuid[TEAM_INDEX_HORDE] = go->GetObjectGuid();
-            break;
-        case BG_SA_GO_GY_FLAG_ALLIANCE_EAST:
-        case BG_SA_GO_GY_FLAG_ALLIANCE_WEST:
-        case BG_SA_GO_GY_FLAG_ALLIANCE_SOUTH:
-        case BG_SA_GO_GY_FLAG_HORDE_EAST:
-        case BG_SA_GO_GY_FLAG_HORDE_WEST:
-        case BG_SA_GO_GY_FLAG_HORDE_SOUTH:
-        case BG_SA_GO_SIGIL_YELLOW_MOON:
-        case BG_SA_GO_SIGIL_GREEN_MOON:
-        case BG_SA_GO_SIGIL_BLUE_MOON:
-        case BG_SA_GO_SIGIL_RED_MOON:
-        case BG_SA_GO_SIGIL_PURPLE_MOON:
-            m_goEntryGuidStore[go->GetEntry()] = go->GetObjectGuid();
             break;
     }
 }
