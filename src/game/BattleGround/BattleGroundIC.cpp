@@ -553,6 +553,9 @@ void BattleGroundIC::HandleCreatureCreate(Creature* creature)
 
 void BattleGroundIC::HandleGameObjectCreate(GameObject* go)
 {
+    // add all objects in GO store
+    m_goEntryGuidStore[go->GetEntry()] = go->GetObjectGuid();
+
     switch (go->GetEntry())
     {
         case BG_IC_GO_SEAFORIUM_BOMBS_A:
@@ -619,43 +622,6 @@ void BattleGroundIC::HandleGameObjectCreate(GameObject* go)
             break;
         case BG_IC_GO_GUNSHIP_PORTAL_EFFECTS_H:
             m_hangarAnimGuids[TEAM_INDEX_HORDE].insert(go->GetDbGuid());
-            break;
-        case BG_IC_GO_BANNER_ALLIANCE_KEEP_A:
-        case BG_IC_GO_BANNER_ALLIANCE_KEEP_A_GREY:
-        case BG_IC_GO_BANNER_ALLIANCE_KEEP_H:
-        case BG_IC_GO_BANNER_ALLIANCE_KEEP_H_GREY:
-        case BG_IC_GO_BANNER_HORDE_KEEP_A:
-        case BG_IC_GO_BANNER_HORDE_KEEP_A_GREY:
-        case BG_IC_GO_BANNER_HORDE_KEEP_H:
-        case BG_IC_GO_BANNER_HORDE_KEEP_H_GREY:
-        case BG_IC_GO_BANNER_WORKSHOP_A:
-        case BG_IC_GO_BANNER_WORKSHOP_A_GREY:
-        case BG_IC_GO_BANNER_WORKSHOP_H:
-        case BG_IC_GO_BANNER_WORKSHOP_H_GREY:
-        case BG_IC_GO_BANNER_DOCKS_A:
-        case BG_IC_GO_BANNER_DOCKS_A_GREY:
-        case BG_IC_GO_BANNER_DOCKS_H:
-        case BG_IC_GO_BANNER_DOCKS_H_GREY:
-        case BG_IC_GO_BANNER_HANGAR_A:
-        case BG_IC_GO_BANNER_HANGAR_A_GREY:
-        case BG_IC_GO_BANNER_HANGAR_H:
-        case BG_IC_GO_BANNER_HANGAR_H_GREY:
-        case BG_IC_GO_BANNER_REFINERY_A:
-        case BG_IC_GO_BANNER_REFINERY_A_GREY:
-        case BG_IC_GO_BANNER_REFINERY_H:
-        case BG_IC_GO_BANNER_REFINERY_H_GREY:
-        case BG_IC_GO_BANNER_QUARRY_A:
-        case BG_IC_GO_BANNER_QUARRY_A_GREY:
-        case BG_IC_GO_BANNER_QUARRY_H:
-        case BG_IC_GO_BANNER_QUARRY_H_GREY:
-        case BG_IC_GO_BANNER_DOCKS:
-        case BG_IC_GO_BANNER_HANGAR:
-        case BG_IC_GO_BANNER_QUARRY:
-        case BG_IC_GO_BANNER_WORKSHOP:
-        case BG_IC_GO_BANNER_REFINERY:
-        case BG_IC_GO_GUNSHIP_A:
-        case BG_IC_GO_GUNSHIP_H:
-            m_goEntryGuidStore[go->GetEntry()] = go->GetObjectGuid();
             break;
     }
 }
