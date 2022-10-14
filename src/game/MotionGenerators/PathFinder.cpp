@@ -27,11 +27,11 @@
 #include <Detour/Include/DetourMath.h>
 
 #ifdef BUILD_METRICS
- #include "Metric/Metric.h"
+#include "Metric/Metric.h"
 #endif
 
 #include <limits>
-////////////////// PathFinder //////////////////
+ ////////////////// PathFinder //////////////////
 PathFinder::PathFinder() :
     m_polyLength(0), m_type(PATHFIND_BLANK),
     m_useStraightPath(false), m_forceDestination(false), m_straightLine(false), m_pointPathLimit(MAX_POINT_PATH_LENGTH), // TODO: Fix legitimate long paths
@@ -330,7 +330,7 @@ dtPolyRef PathFinder::getPolyByLocation(const float* point, float* distance)
     // we don't have it in our old path
     // try to get it by findNearestPoly()
     // first try with NearPolySearchBound
-    float closestPoint[VERTEX_SIZE] = {0.0f, 0.0f, 0.0f};
+    float closestPoint[VERTEX_SIZE] = { 0.0f, 0.0f, 0.0f };
     dtStatus dtResult = m_navMeshQuery->findNearestPoly(point, NearPolySearchBound, &m_filter, &polyRef, closestPoint);
     if (dtStatusSucceed(dtResult) && polyRef != INVALID_POLYREF)
     {
@@ -620,7 +620,7 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
                 &m_filter,          // polygon search filter
                 m_pathPolyRefs.data(), // [out] path
                 (int*)&m_polyLength,
-                m_pointPathLimit / 2);   // max number of polygons in output path
+                m_pointPathLimit);   // max number of polygons in output path
         }
         else
         {
@@ -636,7 +636,7 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
                 hitNormal,
                 m_pathPolyRefs.data(),
                 (int*)&m_polyLength,
-                m_pointPathLimit / 2);
+                m_pointPathLimit);
 
             // raycast() sets hit to FLT_MAX if there is a ray between start and end
             if (hit != FLT_MAX)
@@ -860,13 +860,6 @@ void PathFinder::BuildPointPath(const float* startPoint, const float* endPoint)
         m_type = PATHFIND_NOPATH;
         return;
     }
-    else if (m_sourceUnit && m_sourceUnit->GetTypeId() != TYPEID_PLAYER && pointCount == m_pointPathLimit)
-    {
-        DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "BuildPointPath FAILED! path sized %d returned, lower than limit set to %d\n", pointCount, m_pointPathLimit);
-        BuildShortcut();
-        m_type = PATHFIND_SHORT;
-        return;
-    }
 
     if (m_sourceUnit && m_sourceUnit->GetTypeId() != TYPEID_PLAYER && pointCount == m_pointPathLimit)
     {
@@ -999,14 +992,14 @@ NavTerrainFlag PathFinder::getNavTerrain(float x, float y, float z) const
 
     switch (data.type_flags)
     {
-        case MAP_LIQUID_TYPE_WATER:
-        case MAP_LIQUID_TYPE_OCEAN:
-            return NAV_WATER;
-        case MAP_LIQUID_TYPE_MAGMA:
-        case MAP_LIQUID_TYPE_SLIME:
-            return NAV_MAGMA_SLIME;
-        default:
-            return NAV_GROUND;
+    case MAP_LIQUID_TYPE_WATER:
+    case MAP_LIQUID_TYPE_OCEAN:
+        return NAV_WATER;
+    case MAP_LIQUID_TYPE_MAGMA:
+    case MAP_LIQUID_TYPE_SLIME:
+        return NAV_MAGMA_SLIME;
+    default:
+        return NAV_GROUND;
     }
 }
 
@@ -1236,7 +1229,7 @@ dtStatus PathFinder::findSmoothPath(const float* startPos, const float* endPos,
     *smoothPathSize = nsmoothPath;
 
     // this is most likely a loop
-    return nsmoothPath <= m_pointPathLimit ? DT_SUCCESS : DT_FAILURE;
+    return nsmoothPath < m_pointPathLimit ? DT_SUCCESS : DT_FAILURE;
 }
 
 void PathFinder::ComputePathToRandomPoint(Vector3 const& startPoint, float maxRange)
