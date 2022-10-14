@@ -1927,6 +1927,13 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
         bool isArena = (bl->type == TYPE_ARENA);
         uint32 minPlayersPerTeam = fields[1].GetUInt32();
         uint32 maxPlayersPerTeam = fields[2].GetUInt32();
+        
+        uint32 minLevel = bl->minLevel;
+        uint32 maxLevel = bl->maxLevel;
+
+        // Random BG should be for 80 level
+        if (bgTypeId == BATTLEGROUND_RB)
+            minLevel = maxLevel = 80;
 
         // check values from DB
         if (maxPlayersPerTeam == 0)
@@ -1993,7 +2000,7 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
         float startMaxDist = fields[5].GetFloat();
 
         // sLog.outDetail("Creating battleground %s, %u-%u", bl->name[sWorld.GetDBClang()], MinLvl, MaxLvl);
-        if (!CreateBattleGround(bgTypeId, isArena, minPlayersPerTeam, maxPlayersPerTeam, bl->minLevel, bl->maxLevel, bl->name[sWorld.GetDefaultDbcLocale()], bl->mapid[0], allianceStartLoc[0], allianceStartLoc[1], allianceStartLoc[2], allianceStartLoc[3], hordeStartLoc[0], hordeStartLoc[1], hordeStartLoc[2], hordeStartLoc[3], startMaxDist))
+        if (!CreateBattleGround(bgTypeId, isArena, minPlayersPerTeam, maxPlayersPerTeam, minLevel, maxLevel, bl->name[sWorld.GetDefaultDbcLocale()], bl->mapid[0], allianceStartLoc[0], allianceStartLoc[1], allianceStartLoc[2], allianceStartLoc[3], hordeStartLoc[0], hordeStartLoc[1], hordeStartLoc[2], hordeStartLoc[3], startMaxDist))
             continue;
 
         ++count;
