@@ -1133,6 +1133,11 @@ void Map::Update(const uint32& t_diff)
         if (!player || !player->IsInWorld() || !player->IsPositionValid())
             continue;
 
+#ifdef ENABLE_PLAYERBOTS
+        if (!player->isRealPlayer())
+            continue;
+#endif
+
         // update objects beyond visibility distance
         if (!player->GetPlayerbotAI() && !player->isAFK())
             player->GetCamera().UpdateVisibilityForOwner(false, true);
