@@ -2629,7 +2629,11 @@ struct WorldObjectChangeAccumulator
         for (auto& iter : m)
         {
             Player* owner = iter.getSource()->GetOwner();
+#ifdef ENABLE_PLAYERBOTS
             if (owner != &i_object && owner->isRealPlayer() && owner->HasAtClient(&i_object))
+#else
+            if (owner != &i_object && owner->HasAtClient(&i_object))
+#endif
                 i_object.BuildUpdateDataForPlayer(owner, i_updateDatas);
         }
     }
