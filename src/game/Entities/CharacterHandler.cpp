@@ -730,7 +730,26 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recv_data)
         SendPacket(data);
         return;
     }
+#ifdef ENABLE_PLAYERBOTS
+    if (pCurrChar && pCurrChar->GetPlayerbotAI())
+    {
+        WorldSession* botSession = pCurrChar->GetSession();
+        SetPlayer(pCurrChar, playerGuid);
+        _player->SetSession(this);
+        _logoutTime = time(0);
 
+        m_sessionDbcLocale = botSession->m_sessionDbcLocale;
+        m_sessionDbLocaleIndex = botSession->m_sessionDbLocaleIndex;
+
+        if(!_player->GetPlayerbotMgr())
+        {
+            _player->SetPlayerbotMgr(new PlayerbotMgr(_player));
+            _player->GetPlayerbotMgr()->OnPlayerLogin(_player);
+            _player->GetPlayerbotMgr()->OnBotLogin(_player);
+        }
+        sRandomPlayerbotMgr.OnPlayerLogin(_player);
+    }
+#endif
     if (_player)
     {
         // player is reconnecting
