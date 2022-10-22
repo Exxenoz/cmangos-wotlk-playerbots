@@ -78,9 +78,9 @@ void ShowTransmogItems(Player* player, Creature* creature, uint8 slot) // Only c
 		}
 	}
 
-	player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "Remove transmogrification", EQUIPMENT_SLOT_END + 3, slot, "Remove transmogrification from the slot?", 0, false);
-	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Update menu", EQUIPMENT_SLOT_END, slot);
-	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Back...", EQUIPMENT_SLOT_END + 1, 0);
+	player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "Transmogrifikation entfernen", EQUIPMENT_SLOT_END + 3, slot, "Transmogrifikation von diesem Gegenstand entfernen?", 0, false);
+	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Menü aktualisieren", EQUIPMENT_SLOT_END, slot);
+	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Zurück...", EQUIPMENT_SLOT_END + 1, 0);
 	player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetObjectGuid());
 }
 
@@ -88,7 +88,7 @@ bool OnGossipHello(Player* player, Creature* creature)
 {
 	WorldSession* session = player->GetSession();
 	if (sTransmogrifier->GetEnableTransmogInfo())
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "How does transmogrification work?", EQUIPMENT_SLOT_END + 9, 0);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Wie funktioniert Transmogrifikation?", EQUIPMENT_SLOT_END + 9, 0);
 	for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
 	{
 		if (const char* slotName = sTransmogrifier->GetSlotName(slot, session))
@@ -104,7 +104,7 @@ bool OnGossipHello(Player* player, Creature* creature)
 	//	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Manage sets", EQUIPMENT_SLOT_END + 4, 0);
 #endif
 	//player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Remove all transmogrifications", EQUIPMENT_SLOT_END + 2, 0, "Remove transmogrifications from all equipped items?", 0, false);
-	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Update menu", EQUIPMENT_SLOT_END + 1, 0);
+	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Menü aktualisieren", EQUIPMENT_SLOT_END + 1, 0);
 	player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetObjectGuid());
 	return true;
 }
@@ -167,13 +167,13 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 ac
 			return true;
 		}
 		if (sTransmogrifier->GetEnableSetInfo())
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "How do sets work?", EQUIPMENT_SLOT_END + 10, 0);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Wie funktionieren Sets?", EQUIPMENT_SLOT_END + 10, 0);
 		for (Transmogrification::presetIdMap::const_iterator it = sTransmogrifier->presetByName[player->GetObjectGuid()].begin(); it != sTransmogrifier->presetByName[player->GetObjectGuid()].end(); ++it)
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "zz?" /*it->second*/, EQUIPMENT_SLOT_END + 6, it->first);
 
 		if (sTransmogrifier->presetByName[player->GetObjectGuid()].size() < sTransmogrifier->GetMaxSets())
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Save set", EQUIPMENT_SLOT_END + 8, 0);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Back...", EQUIPMENT_SLOT_END + 1, 0);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Set speichern", EQUIPMENT_SLOT_END + 8, 0);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Zurück...", EQUIPMENT_SLOT_END + 1, 0);
 		player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetObjectGuid());
 	} break;
 	case EQUIPMENT_SLOT_END + 5: // Use preset
@@ -202,9 +202,9 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 ac
 		for (Transmogrification::slotMap::const_iterator it = sTransmogrifier->presetById[player->GetObjectGuid()][action].begin(); it != sTransmogrifier->presetById[player->GetObjectGuid()][action].end(); ++it)
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "zzz"/*sTransmogrifier->GetItemIcon(it->second, 30, 30, -18, 0) + sTransmogrifier->GetItemLink(it->second, session)*/, sender, action);
 
-		player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "Use this set", EQUIPMENT_SLOT_END + 5, action, "Using this set for transmogrify will bind transmogrified items to you and make them non-refundable and non-tradeable.\nDo you wish to continue?\n\n" + sTransmogrification->presetByName[player->GetObjectGuid()][action], 0, false);
-		player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "Delete set", EQUIPMENT_SLOT_END + 7, action, "Are you sure you want to delete " + sTransmogrification->presetByName[player->GetObjectGuid()][action] + "?", 0, false);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Back...", EQUIPMENT_SLOT_END + 4, 0);
+		player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "Set verwenden", EQUIPMENT_SLOT_END + 5, action, "Using this set for transmogrify will bind transmogrified items to you and make them non-refundable and non-tradeable.\nDo you wish to continue?\n\n" + sTransmogrification->presetByName[player->GetObjectGuid()][action], 0, false);
+		player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "Set entfernen", EQUIPMENT_SLOT_END + 7, action, "Are you sure you want to delete " + sTransmogrification->presetByName[player->GetObjectGuid()][action] + "?", 0, false);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Zurück...", EQUIPMENT_SLOT_END + 4, 0);
 		player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetObjectGuid());
 	} break;
 	case EQUIPMENT_SLOT_END + 7: // Delete preset
@@ -251,20 +251,20 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 ac
 			}
 		}
 		if (canSave)
-			player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "Save set", 0, 0, "Insert set name", cost * sTransmogrification->GetSetCostModifier() + sTransmogrification->GetSetCopperCost(), true);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Update menu", sender, action);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Back...", EQUIPMENT_SLOT_END + 4, 0);
+			player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "Set speichern", 0, 0, "Set-Namen eingeben", cost * sTransmogrification->GetSetCostModifier() + sTransmogrification->GetSetCopperCost(), true);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Menü aktualisieren", sender, action);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Zurück...", EQUIPMENT_SLOT_END + 4, 0);
 		player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetObjectGuid());
 	} break;
 	case EQUIPMENT_SLOT_END + 10: // Set info
 	{
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Back...", EQUIPMENT_SLOT_END + 4, 0);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Zurück...", EQUIPMENT_SLOT_END + 4, 0);
 		player->SEND_GOSSIP_MENU(sTransmogrifier->GetSetNpcText(), creature->GetObjectGuid());
 	} break;
 #endif
 	case EQUIPMENT_SLOT_END + 9: // Transmog info
 	{
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Back...", EQUIPMENT_SLOT_END + 1, 0);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Zurück...", EQUIPMENT_SLOT_END + 1, 0);
 		player->SEND_GOSSIP_MENU(sTransmogrifier->GetTransmogNpcText(), creature->GetObjectGuid());
 	} break;
 	default: // Transmogrify
@@ -364,7 +364,7 @@ bool GossipHello_TransmogNPC(Player* pPlayer, Creature* pUnit)
 	pPlayer->GetPlayerMenu()->ClearMenus();
 
 	if (sTransmogrifier->GetEnableTransmogInfo())
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "How does transmogrification work?", EQUIPMENT_SLOT_END + 9, 0);
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Wie funktioniert Transmogrifikation?", EQUIPMENT_SLOT_END + 9, 0);
 
 	// Only show the menu option for items that you have equipped
 	for (uint8 Slot = EQUIPMENT_SLOT_START; Slot < EQUIPMENT_SLOT_END; Slot++)
@@ -469,7 +469,7 @@ bool GossipHello_TransmogNPC(Player* pPlayer, Creature* pUnit)
 	}
 
 	// Remove all transmogrifiers
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "Remove all transmogrifications.", EQUIPMENT_SLOT_END + 2, 0);
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "Alle Transmogrifikationen entfernen.", EQUIPMENT_SLOT_END + 2, 0);
 	pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pUnit->GetObjectGuid());
 
 	return true;
@@ -634,7 +634,7 @@ bool GossipSelect_TransmogNPC(Player* pPlayer, Creature* pUnit, const uint32 sen
 	else if (sender == EQUIPMENT_SLOT_END + 4)
 	{
 		sTransmogrification->ApplyAll(pPlayer);
-		pPlayer->GetSession()->SendAreaTriggerMessage("Your appearance was refreshed");
+		pPlayer->GetSession()->SendAreaTriggerMessage("Eure Erscheinung wurde aktualisiert");
 		GossipHello_TransmogNPC(pPlayer, pUnit);
 	}
 	// Info about transmogrification
