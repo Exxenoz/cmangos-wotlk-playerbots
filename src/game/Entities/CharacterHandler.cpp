@@ -740,14 +740,21 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recv_data)
 
         m_sessionDbcLocale = botSession->m_sessionDbcLocale;
         m_sessionDbLocaleIndex = botSession->m_sessionDbLocaleIndex;
-
-        if(!_player->GetPlayerbotMgr())
+        
+        PlayerbotMgr* mgr = _player->GetPlayerbotMgr();
+        if (!mgr || mgr->GetMaster() != _player)
         {
+            _player->SetPlayerbotMgr(NULL);
+            delete mgr;
             _player->SetPlayerbotMgr(new PlayerbotMgr(_player));
             _player->GetPlayerbotMgr()->OnPlayerLogin(_player);
-            _player->GetPlayerbotMgr()->OnBotLogin(_player);
+
+            if (sRandomPlayerbotMgr.GetPlayerBot(playerGuid))
+
+                sRandomPlayerbotMgr.MovePlayerBot(playerGuid, _player->GetPlayerbotMgr());
+            else
+                _player->GetPlayerbotMgr()->OnBotLogin(_player);
         }
-        sRandomPlayerbotMgr.OnPlayerLogin(_player);
     }
 #endif
     if (_player)
