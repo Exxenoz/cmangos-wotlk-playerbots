@@ -4805,20 +4805,23 @@ void Player::BuildPlayerRepop()
     // there we must send 888 opcode
 
     // the player cannot have a corpse already, only bones which are not returned by GetCorpse
-    if (GetCorpse())
+    Corpse* corpse = GetCorpse();
+    if (corpse)
     {
         sLog.outError("BuildPlayerRepop: player %s(%d) already has a corpse", GetName(), GetGUIDLow());
-        MANGOS_ASSERT(false);
+        //MANGOS_ASSERT(false);
     }
-
-    // create a corpse and place it at the player's location
-    Corpse* corpse = CreateCorpse();
-    if (!corpse)
+    else
     {
-        sLog.outError("Error creating corpse for Player %s [%u]", GetName(), GetGUIDLow());
-        return;
+        // create a corpse and place it at the player's location
+        corpse = CreateCorpse();
+        if (!corpse)
+        {
+            sLog.outError("Error creating corpse for Player %s [%u]", GetName(), GetGUIDLow());
+            return;
+        }
+        GetMap()->Add(corpse);
     }
-    GetMap()->Add(corpse);
 
     // convert player body to ghost
     SetHealth(1);
