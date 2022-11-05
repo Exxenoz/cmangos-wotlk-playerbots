@@ -768,7 +768,7 @@ void PathFinder::BuildPointPath(const float* startPoint, const float* endPoint)
     }
 
     // Normalize calculated path points first
-    if (sWorld.getConfig(CONFIG_BOOL_PATH_FIND_NORMALIZE_Z))
+    if (sWorld.getConfig(CONFIG_BOOL_PATH_FIND_NORMALIZE_Z) && m_sourceUnit)
     {
         for (uint32 i = 0; i < pointCount; ++i)
         {
