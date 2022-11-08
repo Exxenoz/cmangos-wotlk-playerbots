@@ -378,7 +378,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recv_data)
                 for (PlayerBotMap::const_iterator it = mgr->GetPlayerBotsBegin(); it != mgr->GetPlayerBotsEnd(); ++it)
                 {
                     Player* const bot = it->second;
-                    if (bot->GetGuildId() == GetPlayer()->GetGuildId())
+                    if (bot->GetGuildId() == GetPlayer()->GetGuildId() && lang != LANG_ADDON)
                         bot->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer(), lang);
                 }
             }
