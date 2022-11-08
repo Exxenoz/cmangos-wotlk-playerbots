@@ -258,11 +258,9 @@ class CharacterHandler
             Player* player = sObjectMgr.GetPlayer(guid, true);
             if (player)
             {
-                if (!sRandomPlayerbotMgr.IsRandomBot(player))
-                {
-                    player->SetPlayerbotMgr(new PlayerbotMgr(player));
-                    player->GetPlayerbotMgr()->OnPlayerLogin(player);
-                }
+                player->SetPlayerbotMgr(new PlayerbotMgr(player));
+                player->GetPlayerbotMgr()->OnPlayerLogin(player);
+
                 sRandomPlayerbotMgr.OnPlayerLogin(player);
             }
 #endif
