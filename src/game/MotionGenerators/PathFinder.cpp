@@ -942,9 +942,12 @@ void PathFinder::createFilter()
             includeFlags |= (NAV_GROUND | NAV_WATER);
             excludeFlags |= (NAV_MAGMA_SLIME | NAV_GROUND_STEEP);
 
-            m_filter.setAreaCost(9, 20.0f);  //Water
-            m_filter.setAreaCost(12, 5.0f);  //Mob proximity
-            m_filter.setAreaCost(13, 20.0f); //Mob agro
+            if (!m_sourceUnit || m_sourceUnit->IsAlive())
+            {
+                m_filter.setAreaCost(9, 20.0f);  //Water
+                m_filter.setAreaCost(12, 5.0f);  //Mob proximity
+                m_filter.setAreaCost(13, 20.0f); //Mob agro
+            }
         }
         else
         {
