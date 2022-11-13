@@ -16829,18 +16829,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
     _LoadActions(holder->GetResult(PLAYER_LOGIN_QUERY_LOADACTIONS));
 
     m_social = sSocialMgr.LoadFromDB(holder->GetResult(PLAYER_LOGIN_QUERY_LOADSOCIALLIST), GetObjectGuid());
-#ifdef ENABLE_PLAYERBOTS
-    if (!isRealPlayer())
-        m_social = sSocialMgr.LoadFromDB(holder->GetResult(PLAYER_LOGIN_QUERY_LOADSOCIALLIST), GetObjectGuid());
-    else
-    {
-#endif
-
-        m_social = new PlayerSocial();
-        m_social->SetPlayerGuid(GetObjectGuid());
-#ifdef ENABLE_PLAYERBOTS
-    }
-#endif
 
     // check PLAYER_CHOSEN_TITLE compatibility with PLAYER__FIELD_KNOWN_TITLES
     // note: PLAYER__FIELD_KNOWN_TITLES updated at quest status loaded
