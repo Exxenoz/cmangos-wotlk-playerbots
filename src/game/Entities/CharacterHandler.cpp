@@ -123,14 +123,7 @@ void PlayerbotHolder::HandlePlayerBotLoginCallback(QueryResult * dummy, SqlQuery
 
     WorldSession* masterSession = masterAccount ? sWorld.FindSession(masterAccount) : NULL;
     uint32 botAccountId = lqh->GetAccountId();
-    WorldSession *botSession = new WorldSession(botAccountId, NULL, SEC_PLAYER,
-#ifndef MANGOSBOT_ZERO
-        MAX_EXPANSION,
-#else
-        0,
-#endif
-        0, LOCALE_enUS, "", 0, 0, false);
-
+    WorldSession *botSession = new WorldSession(botAccountId, NULL, SEC_PLAYER, MAX_EXPANSION, 0, LOCALE_enUS, "", 0, 0, false);
     botSession->SetNoAnticheat();
 
     uint32 guid = lqh->GetGuid().GetRawValue();
