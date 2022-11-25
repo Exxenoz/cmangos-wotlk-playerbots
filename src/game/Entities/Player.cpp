@@ -23496,7 +23496,7 @@ void Player::learnClassLevelSpells(bool includeHighLevelQuestRewards)
             uint32 reqLevel = 0;
 
             // skip wrong class/race skills
-            if (!IsSpellFitByClassAndRace(tSpell->learnedSpell))
+            if (!IsSpellFitByClassAndRace(tSpell->learnedSpell), &reqLevel)
                 continue;
 
             if (tSpell->conditionId && !sObjectMgr.IsConditionSatisfied(tSpell->conditionId, this, GetMap(), this, CONDITION_FROM_TRAINER))
@@ -23521,7 +23521,7 @@ void Player::learnClassLevelSpells(bool includeHighLevelQuestRewards)
             //if (first_rank && tSpell->learnedSpell == first_rank)
             //    continue;
 
-            SpellEntry const* proto = sSpellTemplate.LookupEntry<SpellEntry>(tSpell->spell);
+            SpellEntry const* proto = sSpellTemplate.LookupEntry<SpellEntry>(tSpell->learnedSpell);
             if (!proto)
                 continue;
 
@@ -23568,6 +23568,10 @@ void Player::learnClassLevelSpells(bool includeHighLevelQuestRewards)
                     continue;
                 }
             }
+
+            // skip wrong class/race skills
+            if (!IsSpellFitByClassAndRace(tSpell->learnedSpell))
+                continue;
 
             // skip broken spells
             if (!SpellMgr::IsSpellValid(proto, this, false))
