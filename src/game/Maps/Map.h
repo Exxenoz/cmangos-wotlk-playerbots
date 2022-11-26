@@ -462,6 +462,7 @@ class Map : public GridRefManager<NGridType>
         void AwardLFGRewards(uint32 dungeonId);
 
         bool HasActiveAreas(ContinentArea areaId = MAP_NO_AREA) { if (areaId == MAP_NO_AREA) { return !m_activeAreas.empty(); } else { return !(find(m_activeAreas.begin(), m_activeAreas.end(), areaId) == m_activeAreas.end()); } }
+        bool HasActiveZone(uint32 zoneId) { return !(find(m_activeZones.begin(), m_activeZones.end(), zoneId) == m_activeZones.end()); }
 
  //Start Solocraft Functions
         bool SoloCraftDebuffEnable = 1;
@@ -616,6 +617,7 @@ class Map : public GridRefManager<NGridType>
         std::map<std::pair<uint32, uint32>, uint32> m_tileNumberPerTile;
         
         std::vector<ContinentArea> m_activeAreas;
+        std::vector<uint32> m_activeZones;
         uint32 m_activeAreasTimer;
         bool hasRealPlayers;
 };

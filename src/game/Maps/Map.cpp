@@ -1038,9 +1038,9 @@ void Map::Update(const uint32& t_diff)
     {
         m_activeAreasTimer = 0;
         m_activeAreas.clear();
+        m_activeZones.clear();
     }
 
-    std::vector<uint32> ActiveZones;
     if (!m_activeAreasTimer && IsContinent() && HasRealPlayers())
     {
         for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
@@ -1057,8 +1057,8 @@ void Map::Update(const uint32& t_diff)
                 if (!plr->isGMVisible())
                     continue;
 
-                if (find(ActiveZones.begin(), ActiveZones.end(), plr->GetZoneId()) == ActiveZones.end())
-                    ActiveZones.push_back(plr->GetZoneId());
+                if (find(m_activeZones.begin(), m_activeZones.end(), plr->GetZoneId()) == m_activeZones.end())
+                    m_activeZones.push_back(plr->GetZoneId());
 
                 ContinentArea activeArea = sMapMgr.GetContinentInstanceId(GetId(), plr->GetPositionX(), plr->GetPositionY());
                 // check active area
@@ -1101,7 +1101,7 @@ void Map::Update(const uint32& t_diff)
                 {
                     if (avgDiff > 200 && IsContinent())
                     {
-                        if (find(ActiveZones.begin(), ActiveZones.end(), plr->GetZoneId()) == ActiveZones.end())
+                        if (find(m_activeZones.begin(), m_activeZones.end(), plr->GetZoneId()) == m_activeZones.end())
                             isInActiveArea = false;
                     }
                 }*/
@@ -1123,7 +1123,7 @@ void Map::Update(const uint32& t_diff)
 
     if (IsContinent() && HasRealPlayers() && HasActiveAreas() && !m_activeAreasTimer)
     {
-        sLog.outBasic("Map %u: Active Areas:Zones - %u:%u", GetId(), m_activeAreas.size(), ActiveZones.size());
+        sLog.outBasic("Map %u: Active Areas:Zones - %u:%u", GetId(), m_activeAreas.size(), m_activeZones.size());
         sLog.outBasic("Map %u: Active Areas Chars - %u of %u", GetId(), activeChars, m_mapRefManager.getSize());
     }
 
@@ -1135,7 +1135,7 @@ void Map::Update(const uint32& t_diff)
 
 #ifdef ENABLE_PLAYERBOTS
         if (!player->isRealPlayer())
-            continue;
+            player->GetVisibilityData().SetVisibilityDistanceOverride(VisibilityDistanceType::Tiny);
 #endif
 
         // update objects beyond visibility distance
@@ -1147,6 +1147,11 @@ void Map::Update(const uint32& t_diff)
         // If player is using far sight, visit that object too
         if (WorldObject* viewPoint = GetWorldObject(player->GetFarSightGuid()))
             VisitNearbyCellsOf(viewPoint, grid_object_update, world_object_update);
+
+#ifdef ENABLE_PLAYERBOTS
+        if (!player->isRealPlayer())
+            player->GetVisibilityData().SetVisibilityDistanceOverride(VisibilityDistanceType::Normal);
+#endif
     }
 
     // non-player active objects
@@ -1178,7 +1183,7 @@ void Map::Update(const uint32& t_diff)
 
                 if (isInActiveArea && IsContinent())
                 {
-                    if (avgDiff > 150 && find(ActiveZones.begin(), ActiveZones.end(), obj->GetZoneId()) == ActiveZones.end())
+                    if (avgDiff > 150 && find(m_activeZones.begin(), m_activeZones.end(), obj->GetZoneId()) == m_activeZones.end())
                         isInActiveArea = false;
                 }
 
