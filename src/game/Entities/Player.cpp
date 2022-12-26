@@ -23496,11 +23496,12 @@ void Player::learnClassLevelSpells(bool includeHighLevelQuestRewards)
             if (!tSpell)
                 continue;
 
-            uint32 reqLevel = 0;
-
             // skip wrong class/race skills
             if (!IsSpellFitByClassAndRace(tSpell->learnedSpell))
                 continue;
+
+            uint32 reqLevel = 0;
+            IsSpellFitByClassAndRace(tSpell->learnedSpell, &reqLevel);
 
             if (tSpell->conditionId && !sObjectMgr.IsConditionSatisfied(tSpell->conditionId, this, GetMap(), this, CONDITION_FROM_TRAINER))
                 continue;
@@ -23561,10 +23562,6 @@ void Player::learnClassLevelSpells(bool includeHighLevelQuestRewards)
                     continue;
                 }
             }
-
-            // skip wrong class/race skills
-            if (!IsSpellFitByClassAndRace(tSpell->learnedSpell))
-                continue;
 
             // skip broken spells
             if (!SpellMgr::IsSpellValid(proto, this, false))
