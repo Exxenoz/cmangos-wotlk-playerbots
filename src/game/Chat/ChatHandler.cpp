@@ -297,13 +297,12 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recv_data)
             }
             
 #ifdef ENABLE_PLAYERBOTS
-            if (player->GetPlayerbotAI() && lang != LANG_ADDON)
+            if (player->GetPlayerbotAI())
             {
                 player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer(), lang);
                 GetPlayer()->m_speakTime = 0;
                 GetPlayer()->m_speakCount = 0;
             }
-#endif
 
             if (msg.find("BOT\t") != 0) //These are spoofed SendAddonMessage with channel "WHISPER".
 #endif
@@ -349,7 +348,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recv_data)
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* player = itr->getSource();
-                if (player && player->GetPlayerbotAI() && lang != LANG_ADDON)
+                if (player && player->GetPlayerbotAI())
                 {
                     player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer(), lang);
                     GetPlayer()->m_speakTime = 0;
@@ -388,12 +387,12 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recv_data)
 
 #ifdef ENABLE_PLAYERBOTS
             PlayerbotMgr *mgr = GetPlayer()->GetPlayerbotMgr();
-            if (mgr)
+            if (mgr && GetPlayer()->GetGuildId())
             {
                 for (PlayerBotMap::const_iterator it = mgr->GetPlayerBotsBegin(); it != mgr->GetPlayerBotsEnd(); ++it)
                 {
                     Player* const bot = it->second;
-                    if (bot->GetGuildId() == GetPlayer()->GetGuildId() && lang != LANG_ADDON)
+                    if (bot->GetGuildId() == GetPlayer()->GetGuildId())
                         bot->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer(), lang);
                 }
             }
