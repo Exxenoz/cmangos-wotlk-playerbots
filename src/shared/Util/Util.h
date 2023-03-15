@@ -315,7 +315,7 @@ inline void strToUpper(std::string& str)
 
 inline void strToLower(std::string& str)
 {
-    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 }
 
 inline wchar_t wcharToUpper(wchar_t wchar)
