@@ -9739,7 +9739,8 @@ void Aura::HandleTriggerLinkedAura(bool apply, bool Real)
         if (int32 points = GetAmount())
             args.SetBasePoints(&points, nullptr, nullptr);
         args.SetTarget(target);
-        caster->CastSpell(args, spellInfo, TRIGGERED_OLD_TRIGGERED, nullptr, this);
+        if (caster)
+            caster->CastSpell(args, spellInfo, TRIGGERED_OLD_TRIGGERED, nullptr, this);
     }
     else
         target->RemoveAurasByCasterSpell(linkedSpell, GetCasterGuid());
