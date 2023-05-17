@@ -40,7 +40,7 @@
 #include "Calendar/Calendar.h"
 #include "AI/ScriptDevAI/ScriptDevAIMgr.h"
 #include "Anticheat/Anticheat.hpp"
-#include "Mail.h"
+#include "Mails/Mail.h"
 #include "AI/ScriptDevAI/scripts/custom/Transmogrification.h"
 
 #ifdef BUILD_PLAYERBOT
@@ -1067,10 +1067,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
 
     // add collector to all accounts if enabled
-    if (sWorld.getConfig(CONFIG_BOOL_COLLECTORS_EDITION) && !(HasAccountFlag(ACCOUNT_FLAG_COLLECTOR_CLASSIC) && HasAccountFlag(ACCOUNT_FLAG_COLLECTOR_TBC) && HasAccountFlag(ACCOUNT_FLAG_COLLECTOR_WRATH)))
+    if (sWorld.getConfig(CONFIG_BOOL_COLLECTORS_EDITION) && !HasAccountFlag(ACCOUNT_FLAG_COLLECTOR_CLASSIC | ACCOUNT_FLAG_COLLECTOR_TBC | ACCOUNT_FLAG_COLLECTOR_WRATH))
     {
         AddAccountFlag(ACCOUNT_FLAG_COLLECTOR_CLASSIC | ACCOUNT_FLAG_COLLECTOR_TBC | ACCOUNT_FLAG_COLLECTOR_WRATH);
-        LoginDatabase.PExecute("UPDATE account SET flags = flags | 0x%x WHERE id = %u", GetAccountId(), ACCOUNT_FLAG_COLLECTOR_CLASSIC | ACCOUNT_FLAG_COLLECTOR_TBC | ACCOUNT_FLAG_COLLECTOR_WRATH);
+        LoginDatabase.PExecute("UPDATE account SET flags = flags | 0x%x WHERE id = %u", (ACCOUNT_FLAG_COLLECTOR_CLASSIC | ACCOUNT_FLAG_COLLECTOR_TBC | ACCOUNT_FLAG_COLLECTOR_WRATH), GetAccountId());
     }
 
     // create collector's edition reward (tbc)
@@ -1178,7 +1178,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         case RACE_DWARF:
         case RACE_GNOME:
             itemid = 14647;
-            questid = 5843;
+            questid = 5841;
             break;
         case RACE_NIGHTELF:
             itemid = 14648;
@@ -1192,14 +1192,42 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             itemid = 14650;
             questid = 5844;
             break;
+        case RACE_DRAENEI:
+            itemid = 22888;
+            questid = 9278;
+            break;
+        case RACE_BLOODELF:
+            itemid = 20938;
+            questid = 8547;
+            break;
         }
 
         if (itemid && questid)
         {
             if (!pCurrChar->HasQuest(questid) && !pCurrChar->HasItemCount(itemid, 1, true) && !pCurrChar->GetQuestRewardStatus(questid))
             {
+                bool hasPetReward = false;
+                // check if already has in mail
+                for (PlayerMails::iterator itr = _player->GetMailBegin(); itr != _player->GetMailEnd(); ++itr)
+                {
+                    // skip deleted mails
+                    if ((*itr)->state == MAIL_STATE_DELETED)
+                        continue;
+
+                    uint8 item_count = uint8((*itr)->items.size());
+                    for (uint8 i = 0; i < item_count; ++i)
+                    {
+                        Item* item = _player->GetMItem((*itr)->items[i].item_guid);
+                        if (item->GetEntry() == itemid)
+                        {
+                            hasPetReward = true;
+                            break;
+                        }
+                    }
+                }
+
                 ItemPrototype const* pProto = ObjectMgr::GetItemPrototype(itemid);
-                if (pProto)
+                if (pProto && !hasPetReward)
                 {
                     uint32 noSpaceForCount = 0;
                     ItemPosCountVec dest;
